@@ -1,0 +1,47 @@
+---
+- name: Install nginx
+  apk:
+    name: nginx
+    state: latest
+    update_cache: yes
+
+- name: Add user to group root
+  user:
+    name: "{{ user }}"
+    groups: root
+    state: present
+
+- name: Remove default nginx configuration
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+    
+- name: Create ngix sites_availlable dir
+  file:
+    path: /etc/nginx/sites-available
+    state: directory
+    mode: '0755'
+
+- name: Add nginx configuration
+  copy:
+    src: static-site-config
+    dest: /etc/nginx/sites-available/static-site-config
+    owner: "{{ user }}"
+    group: root
+    mode: '0644'
+
+- name: Create nginx sites-enabled directory
+  file:
+    path: /etc/nginx/sites-enabled
+    state: directory
+    mode: '0755'
+
+- name: Enable website configuration
+  file:
+    src: /etc/nginx/sites-available/static-site-config
+    dest: /etc/nginx/sites-enabled/static-site-config
+    state: link
+
+- name: Ensure nginx is running for AlpineLinux
+  become: yes
+  command: rc-service nginx start

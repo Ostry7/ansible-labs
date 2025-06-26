@@ -1,0 +1,6 @@
+---
+- name: Deploy nginx static website
+  hosts: local_vms
+  become: yes
+  roles:
+    - nginx_static_site
