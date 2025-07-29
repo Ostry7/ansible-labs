@@ -1,0 +1,14 @@
+# hosts file with local IPs
+inventory/hosts
+
+# temp files
+*.retry
+*.log
+
+# private keys
+*.pem
+*.key
+
+# user data
+*.vault_pass
+
