@@ -1,0 +1,19 @@
+---
+  - name: Install htop pkg on Rocky
+    ansible.builtin.yum:
+      name: htop
+      state: present #check if the htop is already installed
+    when: ansible_os_family in ["RedHat"]
+
+  - name: Install htop pkg on Debian
+    ansible.builtin.apt:
+      name: htop
+      state: present #check if the htop is already installed
+      update_cache: yes #apt update, only for Debian because yum automatically update metadata from pkg manager, apk doesn't have any local cache 
+    when: ansible_os_family == "Debian"
+
+  - name: Install htop pkg on Alpine
+    ansible.builtin.apk:
+      name: htop
+      state: present #check if the htop is already installed
+    when: ansible_os_family == "Alpine"
