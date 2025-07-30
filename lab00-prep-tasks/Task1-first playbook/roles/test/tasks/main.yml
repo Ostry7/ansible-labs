@@ -1,7 +1,0 @@
----
-- name: Test - wyświetl komunikat
-  debug:
-    msg: "Ansible działa poprawnie na hoście {{ inventory_hostname }}"
-
-- name: Test - ping do localhosta
-  ping:
