@@ -1,0 +1,17 @@
+- name: Create user testuser on Debianwith sudo group
+  ansible.builtin.user:
+    name: testuser
+    state: present
+    groups: sudo #if su
+    shell: /bin/bash
+    create_home: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Create user testuser on RedHat with wheel group
+  ansible.builtin.user:
+    name: testuser
+    state: present
+    groups: wheel #if su
+    shell: /bin/bash
+    create_home: yes
+  when: ansible_facts['os_family'] == "RedHat"

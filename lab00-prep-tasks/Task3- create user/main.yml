@@ -1,0 +1,6 @@
+---
+- name: Create test user on Linux hosts
+  become: yes
+  hosts: linux 
+  roles:
+    - create-user
