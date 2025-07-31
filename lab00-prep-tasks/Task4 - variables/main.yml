@@ -1,0 +1,9 @@
+---
+- name: Create test user on Linux hosts
+  hosts: linux 
+  gather_facts: false
+  become: true
+  vars:
+    user_name: User2
+  roles:
+    - variables

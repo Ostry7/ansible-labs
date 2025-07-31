@@ -1,0 +1,12 @@
+- name: Create user [from variable] on Linux hosts
+  ansible.builtin.user:
+    name: "{{ user_name }}"
+    state: present
+    shell: /bin/bash
+    create_home: yes
+
+- name: Create user home dirs
+  ansible.builtin.file:
+    path: "/home/{{ user_name }}/testDIR"
+    state: directory
+    mode: '0755'
