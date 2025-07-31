@@ -1,8 +1,8 @@
-Task 3 - Create testuser with Ansible
+# Task 3 - Create testuser with Ansible
 
 This is a simple Ansible playbook for creating a testuser on Linux hosts using conditional group assignment based on the OS family.
 
-The playbook main.yml:
+The playbook `main.yml`:
 
     Creates user testuser on Linux hosts
 
@@ -12,8 +12,12 @@ The playbook main.yml:
 
     Uses privilege escalation (become: true) to perform user creation
 
-Usage
+## Usage
 
 To run the playbook:
 
+```bash
 ansible-playbook -i inventory main.yml --ask-become-pass
+
+
+
