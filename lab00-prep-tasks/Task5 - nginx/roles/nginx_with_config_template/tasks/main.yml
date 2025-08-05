@@ -1,0 +1,41 @@
+---
+
+- name: Check if nginx is installed
+  ansible.builtin.package:
+    name: nginx
+    state: present
+
+- name: Create a document root directory
+  ansible.builtin.file:
+    path: "{{ document_root }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Deploy Nginx configuration template
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/{{ server_name }}.conf
+
+- name: Enable site by creating symlink #debian/ubuntu
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/{{ server_name }}.conf
+    dest: /etc/nginx/sites-enabled/{{ server_name }}.conf
+    state: link
+    
+- name: Create a sample index.html
+  ansible.builtin.copy:
+    dest: "{{ document_root }}/index.html"
+    content: "<h1>Hello from {{ server_name }}</h1>"
+    mode: '0644'
+
+- name: Disable default nginx site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded

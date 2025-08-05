@@ -1,0 +1,9 @@
+---
+- name: Deploy basic nginx site
+  hosts: linux1
+  become: true
+  vars:
+    server_name: example.com
+    document_root: /var/www/example.com
+  roles:
+    - nginx_with_config_template
