@@ -1,0 +1,130 @@
+---
+- name: Install GIT on Rocky
+  ansible.builtin.yum:
+    name: git
+    state: present
+  when: ansible_os_family == "RedHat" and ansible_distribution == "Rocky"
+
+- name: Install GIT on Debian
+  ansible.builtin.apt:
+    name: git
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install GIT on Alpine
+  ansible.builtin.apk:
+    name: git
+    state: present
+  when: ansible_os_family == "Alpine"
+
+- name: Install Docker on Rocky
+  when: ansible_os_family == "RedHat" and ansible_distribution == "Rocky"
+  block:
+    - name: Install dnf-utils
+      ansible.builtin.dnf:
+        name: dnf-utils
+        state: present
+
+    - name: Add Docker repo
+      ansible.builtin.command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        creates: /etc/yum.repos.d/docker-ce.repo
+
+    - name: Install Docker packages
+      ansible.builtin.dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Enable and start Docker
+      ansible.builtin.systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+- name: Install Docker on Debian
+  when: ansible_os_family == "Debian"
+  block:
+    - name: Update APT cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+
+    - name: Create keyring dir
+      ansible.builtin.command: install -m 0755 -d /etc/apt/keyrings
+      args:
+        creates: /etc/apt/keyrings
+
+    - name: Download Docker GPG key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/debian/gpg
+        dest: /etc/apt/keyrings/docker.gpg
+        mode: '0644'
+
+    - name: Add Docker repo
+      ansible.builtin.apt_repository:
+        repo: "deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ ansible_lsb.codename }} stable"
+        filename: docker
+
+    - name: Update APT again
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install Docker packages
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Enable and start Docker
+      ansible.builtin.systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+- name: Install Docker on Alpine
+  when: ansible_distribution == "Alpine"
+  block:
+    - name: Install Docker
+      ansible.builtin.apk:
+        name: docker
+        state: present
+
+    - name: Start Docker service
+      ansible.builtin.service:
+        name: docker
+        state: started
+
+- name: Install ZSH on Rocky
+  when: ansible_os_family == "RedHat" and ansible_distribution == "Rocky"
+  block:
+    - ansible.builtin.dnf:
+        name: zsh
+        state: present
+
+- name: Install ZSH on Debian
+  when: ansible_os_family == "Debian"
+  block:
+    - ansible.builtin.apt:
+        name: zsh
+        state: present
+
+- name: Install ZSH on Alpine
+  when: ansible_distribution == "Alpine"
+  ansible.builtin.apk:
+    name: zsh
+    state: present
