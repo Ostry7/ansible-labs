@@ -1,0 +1,20 @@
+- name: Delete user on Debian
+  ansible.builtin.user:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ username }}"
+  when: ansible_os_family == 'Debian'
+
+- name: Delete user on RedHat
+  ansible.builtin.user:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ username }}"
+  when: ansible_os_family == 'RedHat'
+
+- name: Delete user on Alpine
+  ansible.builtin.user:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ username }}"
+  when: ansible_os_family == 'Alpine'

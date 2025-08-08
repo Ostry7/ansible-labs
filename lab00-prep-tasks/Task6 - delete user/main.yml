@@ -1,0 +1,8 @@
+---
+- hosts: [linux]
+  become: true
+  gather_facts: true
+  vars_files:
+    - roles/delete-user/vars/vars.yml
+  roles:
+    - delete-user
