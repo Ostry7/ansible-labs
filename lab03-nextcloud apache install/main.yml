@@ -1,0 +1,7 @@
+---
+- name: Install nextcloud app with all dependencies
+  hosts: debian 
+  gather_facts: true
+  become: true
+  roles:
+    - nextcloud-install

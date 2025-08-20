@@ -1,0 +1,101 @@
+- name: Update package cache
+  ansible.builtin.apt:
+    update_cache: 'yes'
+    cache_valid_time: 3600
+
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - software-properties-common
+      - unzip
+      - wget
+      - curl
+      - apache2
+      - mariadb-server
+      - php
+      - php-cli
+      - php-zip
+      - php-dom
+      - php-xmlwriter
+      - php-xmlreader
+      - php-xml
+      - php-mbstring
+      - php-gd
+      - php-simplexml
+      - php-curl
+      - php-mysql
+      - php-pgsql
+      - php-sqlite3
+      - python3-pymysql
+    state: present
+
+- name: Make sure Apache is running
+  systemd:
+    name: apache2
+    state: started
+    enabled: true
+
+- name: Make sure MariaDB is running
+  systemd:
+    name: mariadb
+    state: started
+    enabled: true
+
+- name: Make sure pymysql is present
+  ansible.builtin.apt:
+    name: curl
+    state: present
+  check_mode: yes
+  register: curl_check
+
+- name: Create nextcloud db
+  mysql_db:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    name: "{{ nextcloud_db }}"
+    state: present
+    login_user: root
+    encoding: utf8mb4
+    collation: utf8mb4_general_ci
+
+- name: Create user for nextcloud db 
+  mysql_user:
+    name: "{{ nextcloud_db_user }}"
+    state: present
+    password: "{{ nextcloud_db_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Grant all privileges to the "{{ nextcloud_db_user }}"
+  mysql_user:
+    name: "{{ nextcloud_db_user }}"
+    priv: "{{ nextcloud_db }}.*:ALL"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Download and install nextcloud version "{{ nextcloud_version }}"
+  shell: |
+    wget https://download.nextcloud.com/server/releases/nextcloud-{{ nextcloud_version }}.zip
+    unzip nextcloud-{{ nextcloud_version }}.zip
+    rm nextcloud-{{ nextcloud_version }}.zip
+    chown -R www-data:www-data {{ nextcloud_dir }}
+    chmod -R 755 {{ nextcloud_dir }}
+  args:
+    chdir: /var/www/
+
+- name: Apache2 configuration
+  template:
+    src: /mnt/c/Users/ostry/Documents/!GIT/ansible-labs/lab03-nextcloud apache install/roles/nextcloud-install/templates/nextcloud.conf.j2
+    dest: /etc/apache2/sites-available/nextcloud.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start nextcloud site
+  shell: |
+    a2ensite nextcloud.conf
+    a2enmod rewrite headers env dir mime
+    a2dissite 000-default.conf
+    systemctl reload apache2
+    systemctl restart apache2
+
+- name: Display final Nextcloud message
+  ansible.builtin.debug:
+    msg: "Nextcloud has been installed! Open in your browser: http://{{ ansible_default_ipv4.address }} to complete the setup."

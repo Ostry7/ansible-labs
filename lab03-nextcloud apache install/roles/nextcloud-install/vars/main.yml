@@ -1,0 +1,7 @@
+# nextcloud installation variables
+nextcloud_version: "28.0.9"
+nextcloud_db: "nextcloud"
+nextcloud_db_user: "nextclouduser"
+nextcloud_db_password: "YourPasswordHere1!"
+nextcloud_admin: "admin"
+nextcloud_dir: "/var/www/nextcloud"
